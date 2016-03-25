@@ -5,6 +5,7 @@ import evdev
 from asyncore import file_dispatcher, loop
 from daemon import Daemon
 from colorlog import log, LOGLEVEL
+from switchboard import SwitchBoard
 
 # pylint: disable=invalid-name
 CONFIG = {}
@@ -12,11 +13,16 @@ with open('harmony_keymap.yml') as f:
     CONFIG = yaml.safe_load(f.read())
 
 LOGLEVEL.set_level(CONFIG['config']['log_level'])
+SWITCHBOARD = SwitchBoard(CONFIG)
 
 
 def process_event(event, config=CONFIG):
     """Take even through translation chain."""
-    raise NotImplementedError
+    # TODO forward events that aren't relevant to the chord translation
+    chord_events = SWITCHBOARD.process_event(event)
+    for event in chord_events:
+        # TODO: translate chord event into key event
+        pass
 
 
 class InputDeviceDispatcher(file_dispatcher):
